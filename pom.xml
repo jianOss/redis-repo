@@ -3,12 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <groupId>org.springframework.boot</groupId>
-    <version>2.3.4.RELEASE</version>
-  </parent>
+
 
   <groupId>com.github.jianOss</groupId>
   <artifactId>redis-repo</artifactId>
@@ -18,19 +13,30 @@
   <description>redis-repo is a rapid development kit.</description>
   <url>https://github.com/jianOss</url>
 
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
 
   <developers>
     <developer>
       <name>verdure</name>
       <email>1792917009@qq.com</email>
+      <timezone>2021-11-24 16:58:07</timezone>
     </developer>
   </developers>
+
+  <properties>
+    <java.version>1.8</java.version>
+    <!-- 打包跳过单元测试 -->
+    <skipTests>true</skipTests>
+  </properties>
+
+  <packaging>jar</packaging>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <scm>
     <connection>scm:git:git@github.com:selfly/dexcoder-assistant.git</connection>
@@ -38,55 +44,132 @@
     <url>https://github.com/jianOss/redis-repo</url>
   </scm>
 
+  <!-- 上传的仓库地址，以及使用哪个账号密码配置 -->
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
-  <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.deploy.skip>true</maven.deploy.skip>
-  </properties>
+
+  <build>
+    <!-- 配置好每个插件的属性 -->
+    <pluginManagement>
+      <plugins>
+        <!-- 上传到sonatype的插件 -->
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.7</version>
+          <extensions>true</extensions>
+          <configuration>
+            <!-- 这里的id必须要和全局配置中的server一致 -->
+            <serverId>ossrh</serverId>
+            <!-- 这个地址，一定要和issue的评论中给出的地址一致！ -->
+            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+            <!-- 如果希望发布后自动执行close和release操作，此处可以调整为true -->
+            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+          </configuration>
+        </plugin>
+
+        <!-- 上传源码的插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.1.0</version>
+          <inherited>true</inherited>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <excludeResources>true</excludeResources>
+            <useDefaultExcludes>true</useDefaultExcludes>
+          </configuration>
+        </plugin>
+
+        <!-- 生成doc文档的插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.0.0</version>
+          <inherited>true</inherited>
+          <executions>
+            <execution>
+              <id>bundle-sources</id>
+              <phase>package</phase>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <maxmemory>1024</maxmemory>
+            <encoding>UTF-8</encoding>
+            <show>protected</show>
+            <notree>true</notree>
+
+            <!-- Avoid running into Java 8's very restrictive doclint issues -->
+            <failOnError>false</failOnError>
+            <doclint>none</doclint>
+          </configuration>
+        </plugin>
+
+        <!-- 编译构建maven工程的插件 -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+            <encoding>UTF-8</encoding>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <!-- 确定要使用哪些插件 -->
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
   <profiles>
     <profile>
       <id>release</id>
       <build>
-      <pluginManagement>
         <plugins>
-          <!-- Source -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>2.2.1</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- Javadoc -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
-            <executions>
-              <execution>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- GPG -->
+          <!-- 生成签名，确定使用那个gpg秘钥 -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
             <version>1.5</version>
             <executions>
               <execution>
-                <id>sign-artifacts</id>
+                <!-- 必须和配置中的gpg校验id一致 -->
+                <id>gpg</id>
                 <phase>verify</phase>
                 <goals>
                   <goal>sign</goal>
@@ -94,32 +177,8 @@
               </execution>
             </executions>
           </plugin>
-
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.7</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-
         </plugins>
-      </pluginManagement>
       </build>
-      <distributionManagement>
-        <snapshotRepository>
-          <id>ossrh</id>
-          <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-          <id>ossrh</id>
-          <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-      </distributionManagement>
     </profile>
   </profiles>
 
