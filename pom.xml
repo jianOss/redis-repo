@@ -32,6 +32,13 @@
     <url>https://github.com/jianOss/redis-repo</url>
   </scm>
 
+
+  <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.deploy.skip>true</maven.deploy.skip>
+  </properties>
+
   <profiles>
     <profile>
       <id>release</id>
@@ -86,11 +93,11 @@
       <distributionManagement>
         <snapshotRepository>
           <id>oss</id>
-          <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+          <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
           <id>oss</id>
-          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+          <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
       </distributionManagement>
     </profile>
